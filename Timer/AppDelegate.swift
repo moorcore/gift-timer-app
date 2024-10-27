@@ -14,9 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        // Создание и настройка окна приложения
         window = UIWindow(frame: UIScreen.main.bounds)
-        let mainViewController = ViewController() // Установите ваш начальный ViewController
+        let mainViewController = ViewController() ViewController
         window?.rootViewController = mainViewController
         window?.makeKeyAndVisible()
         
