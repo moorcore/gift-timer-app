@@ -44,19 +44,35 @@ class ViewController: UIViewController {
     }
     
     func setupAnimation() {
-        animationView.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
-        animationView.center = CGPoint(x: self.view.center.x, y: self.view.center.y - 50)
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop
 
         view.addSubview(animationView)
         
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            animationView.widthAnchor.constraint(equalToConstant: 200),
+            animationView.heightAnchor.constraint(equalToConstant: 200),
+            animationView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            animationView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50)
+        ])
+        
         animationView.play()
     }
 
     func setupTimerLabel() {
-        timerLabel.frame = CGRect(x: 0, y: animationView.frame.maxY + 20, width: self.view.frame.width, height: 50)
         view.addSubview(timerLabel)
+        
+        timerLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            timerLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 20),
+            timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            timerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            timerLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            timerLabel.heightAnchor.constraint(equalToConstant: 50)
+        ])
         
         updateTimerLabel()
     }
