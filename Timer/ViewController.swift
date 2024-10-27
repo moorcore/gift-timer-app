@@ -30,6 +30,13 @@ class ViewController: UIViewController {
         setupAnimation()
         setupTimerLabel()
         
+        if let savedCountdownTime = UserDefaults.standard.value(forKey: "countdownTime") as? Int,
+           let backgroundExitTime = UserDefaults.standard.object(forKey: "backgroundExitTime") as? Date {
+            
+            let elapsedTime = Date().timeIntervalSince(backgroundExitTime)
+            countdownTime = max(savedCountdownTime - Int(elapsedTime), 0)
+        }
+        
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         
