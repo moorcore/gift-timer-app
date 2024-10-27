@@ -10,15 +10,16 @@ import Lottie
 
 class ViewController: UIViewController {
     
-    var timer: Timer?
     var countdownTime: Int = 1514
-    
+    var endTime: Date?
+    var displayLink: CADisplayLink?
+
     let animationView = AnimationView(name: "GiftAnimation")
     
     let timerLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 20)
+        label.font = UIFont.systemFont(ofSize: 28)
         label.textColor = .white
         return label
     }()
@@ -28,11 +29,12 @@ class ViewController: UIViewController {
         
         setupAnimation()
         setupTimerLabel()
-        startTimer()
         
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+        
+        startTimer()
     }
-
+    
     func setupAnimation() {
         animationView.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
         animationView.center = CGPoint(x: self.view.center.x, y: self.view.center.y - 50)
@@ -52,15 +54,25 @@ class ViewController: UIViewController {
     }
 
     func startTimer() {
-        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
+        endTime = Date().addingTimeInterval(TimeInterval(countdownTime))
+        
+        displayLink = CADisplayLink(target: self, selector: #selector(updateTimer))
+        displayLink?.add(to: .main, forMode: .default)
     }
 
     @objc func updateTimer() {
-        if countdownTime > 0 {
-            countdownTime -= 1
+        guard let endTime = endTime else { return }
+        
+        let remainingTime = Int(endTime.timeIntervalSinceNow)
+        
+        if remainingTime > 0 {
+            countdownTime = remainingTime
             updateTimerLabel()
         } else {
-            timer?.invalidate()
+            displayLink?.invalidate()
+            displayLink = nil
+            countdownTime = 0
+            updateTimerLabel()
         }
     }
 
@@ -69,8 +81,10 @@ class ViewController: UIViewController {
         let seconds = countdownTime % 60
         timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
     }
-    
+
     @objc func applicationDidBecomeActive() {
+        updateTimer()
+        
         if !animationView.isAnimationPlaying {
             animationView.play()
         }
@@ -78,5 +92,6 @@ class ViewController: UIViewController {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+        displayLink?.invalidate()
     }
 }
