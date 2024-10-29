@@ -16,7 +16,7 @@ class ViewController: UIViewController {
 
     let backgroundCircleView: UIView = {
         let view = UIView()
-        view.backgroundColor = .gray
+        view.backgroundColor = .gray.withAlphaComponent(0.4)
         view.layer.cornerRadius = 130
         view.clipsToBounds = true
         return view
