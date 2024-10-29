@@ -14,12 +14,20 @@ class ViewController: UIViewController {
     var endTime: Date?
     var displayLink: CADisplayLink?
 
+    let backgroundCircleView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .gray
+        view.layer.cornerRadius = 130
+        view.clipsToBounds = true
+        return view
+    }()
+    
     let animationView = AnimationView(name: "GiftAnimation")
     
     let timerLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 28)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 28, weight: .regular)
         label.textColor = .white
         return label
     }()
@@ -27,6 +35,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupBackgroundCircle()
         setupAnimation()
         setupTimerLabel()
         
@@ -40,38 +49,62 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         
+        let bannerView = BannerView()
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bannerView)
+        
+        NSLayoutConstraint.activate([
+            bannerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            bannerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            bannerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            bannerView.heightAnchor.constraint(equalToConstant: 120)
+        ])
+        
         startTimer()
+    }
+    
+    func setupBackgroundCircle() {
+        view.addSubview(backgroundCircleView)
+        
+        backgroundCircleView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            backgroundCircleView.widthAnchor.constraint(equalToConstant: 260),
+            backgroundCircleView.heightAnchor.constraint(equalToConstant: 260),
+            backgroundCircleView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            backgroundCircleView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50)
+        ])
     }
     
     func setupAnimation() {
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop
 
-        view.addSubview(animationView)
+        backgroundCircleView.addSubview(animationView)
         
         animationView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             animationView.widthAnchor.constraint(equalToConstant: 200),
             animationView.heightAnchor.constraint(equalToConstant: 200),
-            animationView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            animationView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50)
+            animationView.centerXAnchor.constraint(equalTo: backgroundCircleView.centerXAnchor),
+            animationView.centerYAnchor.constraint(equalTo: backgroundCircleView.centerYAnchor, constant: -20)
         ])
         
-        animationView.play()
+        animationView.play(fromFrame: 10, toFrame: animationView.animation?.endFrame ?? 0)
     }
 
     func setupTimerLabel() {
-        view.addSubview(timerLabel)
+        backgroundCircleView.addSubview(timerLabel)
         
         timerLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            timerLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 20),
-            timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            timerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            timerLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            timerLabel.heightAnchor.constraint(equalToConstant: 50)
+            timerLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 5),
+            timerLabel.centerXAnchor.constraint(equalTo: backgroundCircleView.centerXAnchor),
+            timerLabel.leadingAnchor.constraint(greaterThanOrEqualTo: backgroundCircleView.leadingAnchor, constant: 20),
+            timerLabel.trailingAnchor.constraint(lessThanOrEqualTo: backgroundCircleView.trailingAnchor, constant: -20),
+            timerLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
         
         updateTimerLabel()
@@ -101,9 +134,10 @@ class ViewController: UIViewController {
     }
 
     func updateTimerLabel() {
+        let hours = countdownTime / 3600
         let minutes = countdownTime / 60
         let seconds = countdownTime % 60
-        timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
+        timerLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
     
     @objc func applicationDidEnterBackground(_ application: UIApplication) {
